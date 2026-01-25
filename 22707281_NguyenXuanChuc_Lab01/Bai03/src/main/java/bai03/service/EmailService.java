@@ -1,5 +1,6 @@
 package bai03.service;
 
+import bai03.dto.EmailMessage;
 import bai03.entity.Order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,9 @@ import java.util.Locale;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final EmailProducer emailProducer;
 
-    public void sendOrderConfirmation(Order order) {
+    public void sendOrderConfirmationSync(Order order) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(order.getCustomerEmail());
@@ -25,16 +27,32 @@ public class EmailService {
             message.setText(buildOrderConfirmationEmail(order));
 
             mailSender.send(message);
-            log.info("✅ Email sent successfully to: {}", order.getCustomerEmail());
+            log.info("✅ [SYNC] Email sent successfully to: {}", order.getCustomerEmail());
         } catch (Exception e) {
-            log.error("❌ Failed to send email to: {}", order.getCustomerEmail(), e);
+            log.error("❌ [SYNC] Failed to send email to: {}", order.getCustomerEmail(), e);
             throw new RuntimeException("Failed to send confirmation email", e);
         }
     }
 
-    private String buildOrderConfirmationEmail(Order order) {
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+    // ✅ Gửi email BẤT ĐỒNG BỘ (Asynchronous) qua RabbitMQ
+    public void sendOrderConfirmationAsync(Order order) {
+        EmailMessage emailMessage = EmailMessage.builder()
+                .orderId(order.getId())
+                .orderCode(order.getOrderCode())
+                .customerEmail(order.getCustomerEmail())
+                .username(order.getUser().getUsername())
+                .productName(order.getProductName())
+                .quantity(order.getQuantity())
+                .price(formatCurrency(order.getPrice()))
+                .totalAmount(formatCurrency(order.getTotalAmount()))
+                .status(order.getStatus().toString())
+                .build();
 
+        emailProducer.sendEmailMessage(emailMessage);
+        log.info("📨 [ASYNC] Email message queued for: {}", order.getCustomerEmail());
+    }
+
+    private String buildOrderConfirmationEmail(Order order) {
         return String.format("""
                 Dear %s,
                 
@@ -62,9 +80,14 @@ public class EmailService {
                 order.getOrderCode(),
                 order.getProductName(),
                 order.getQuantity(),
-                currencyFormat.format(order.getPrice()),
-                currencyFormat.format(order.getTotalAmount()),
+                formatCurrency(order.getPrice()),
+                formatCurrency(order.getTotalAmount()),
                 order.getStatus()
         );
+    }
+
+    private String formatCurrency(java.math.BigDecimal amount) {
+        NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+        return currencyFormat.format(amount);
     }
 }

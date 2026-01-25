@@ -13,6 +13,7 @@ public enum ErrorCode {
     UNAUTHENTICATED(1006, "Unauthenticated"),
     UNAUTHORIZED(1007, "You do not have permission"),
     ROLE_NOT_EXISTED(1008, "Role not existed"),
+    EMAIL_EXISTED(1009, "Email already existed"),
     ;
 
     private int code;

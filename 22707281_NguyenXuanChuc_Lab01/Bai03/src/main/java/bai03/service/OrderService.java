@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,33 +34,67 @@ public class OrderService {
     private final EmailService emailService;
 
     @Transactional
-    public OrderResponse createOrder(OrderCreationRequest request) {
-        // Lấy user hiện tại từ Security Context
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        // Tạo order
-        Order order = orderMapper.toOrder(request);
-        order.setUser(user);
-        order.setOrderCode(generateOrderCode());
-        order.setStatus(OrderStatus.PENDING);
-
-        // Lưu vào database
+    public OrderResponse createOrderSync(OrderCreationRequest request) {
+        Order order = createOrderEntity(request);
         Order savedOrder = orderRepository.save(order);
-        log.info("📦 Order created: {}", savedOrder.getOrderCode());
 
-        // Gửi email xác nhận
-        emailService.sendOrderConfirmation(savedOrder);
+        log.info("📦 [SYNC] Order created: {}", savedOrder.getOrderCode());
+
+        // ✅ Gửi email ĐỒNG BỘ (chờ gửi xong mới return)
+        emailService.sendOrderConfirmationSync(savedOrder);
 
         return orderMapper.toOrderResponse(savedOrder);
     }
 
     @Transactional
-    public List<OrderResponse> createMultipleOrders(List<OrderCreationRequest> requests) {
+    public OrderResponse createOrderAsync(OrderCreationRequest request) {
+        Order order = createOrderEntity(request);
+        Order savedOrder = orderRepository.save(order);
+        log.info("📦 [ASYNC] Order created: {}", savedOrder.getOrderCode());
+
+        // ✅ TỐI ƯU: Chỉ gửi message khi DB đã commit thành công
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    emailService.sendOrderConfirmationAsync(savedOrder);
+                } catch (Exception e) {
+                    log.error("❌ Lỗi gửi queue sau khi commit", e);
+                    // Có thể lưu log để retry sau
+                }
+            }
+        });
+
+        return orderMapper.toOrderResponse(savedOrder);
+    }
+
+    @Transactional
+    public List<OrderResponse> createMultipleOrdersSync(List<OrderCreationRequest> requests) {
+        log.info("📦 [SYNC] Creating {} orders", requests.size());
         return requests.stream()
-                .map(this::createOrder)
+                .map(this::createOrderSync)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<OrderResponse> createMultipleOrdersAsync(List<OrderCreationRequest> requests) {
+        log.info("📦 [ASYNC] Creating {} orders", requests.size());
+        return requests.stream()
+                .map(this::createOrderAsync)
+                .collect(Collectors.toList());
+    }
+
+    private Order createOrderEntity(OrderCreationRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Order order = orderMapper.toOrder(request);
+        order.setUser(user);
+        order.setOrderCode(generateOrderCode());
+        order.setStatus(OrderStatus.PENDING);
+
+        return order;
     }
 
     public List<OrderResponse> getAllOrders() {

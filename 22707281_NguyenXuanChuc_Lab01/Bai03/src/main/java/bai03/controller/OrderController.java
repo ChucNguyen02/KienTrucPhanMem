@@ -21,22 +21,73 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping
+    // ✅ Tạo đơn hàng ĐỒNG BỘ (gửi email ngay, chờ xong mới return)
+    @PostMapping("/sync")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUEST')")
-    public ApiResponse<OrderResponse> createOrder(@Valid @RequestBody OrderCreationRequest request) {
-        log.info("📦 Creating new order for product: {}", request.getProductName());
+    public ApiResponse<OrderResponse> createOrderSync(@Valid @RequestBody OrderCreationRequest request) {
+        log.info("📦 [SYNC] Creating new order for product: {}", request.getProductName());
+        long startTime = System.currentTimeMillis();
+
+        OrderResponse response = orderService.createOrderSync(request);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("⏱️ [SYNC] Order created in {}ms", duration);
+
         return ApiResponse.<OrderResponse>builder()
-                .result(orderService.createOrder(request))
+                .result(response)
                 .build();
     }
 
-    @PostMapping("/bulk")
+    // ✅ Tạo đơn hàng BẤT ĐỒNG BỘ (đẩy vào queue và return ngay)
+    @PostMapping("/async")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUEST')")
-    public ApiResponse<List<OrderResponse>> createMultipleOrders(
+    public ApiResponse<OrderResponse> createOrderAsync(@Valid @RequestBody OrderCreationRequest request) {
+        log.info("📦 [ASYNC] Creating new order for product: {}", request.getProductName());
+        long startTime = System.currentTimeMillis();
+
+        OrderResponse response = orderService.createOrderAsync(request);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("⏱️ [ASYNC] Order created in {}ms", duration);
+
+        return ApiResponse.<OrderResponse>builder()
+                .result(response)
+                .build();
+    }
+
+    // ✅ Tạo nhiều đơn hàng ĐỒNG BỘ
+    @PostMapping("/bulk/sync")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GUEST')")
+    public ApiResponse<List<OrderResponse>> createMultipleOrdersSync(
             @Valid @RequestBody List<OrderCreationRequest> requests) {
-        log.info("📦 Creating {} orders", requests.size());
+        log.info("📦 [SYNC] Creating {} orders", requests.size());
+        long startTime = System.currentTimeMillis();
+
+        List<OrderResponse> responses = orderService.createMultipleOrdersSync(requests);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("⏱️ [SYNC] {} orders created in {}ms", requests.size(), duration);
+
         return ApiResponse.<List<OrderResponse>>builder()
-                .result(orderService.createMultipleOrders(requests))
+                .result(responses)
+                .build();
+    }
+
+    // ✅ Tạo nhiều đơn hàng BẤT ĐỒNG BỘ
+    @PostMapping("/bulk/async")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GUEST')")
+    public ApiResponse<List<OrderResponse>> createMultipleOrdersAsync(
+            @Valid @RequestBody List<OrderCreationRequest> requests) {
+        log.info("📦 [ASYNC] Creating {} orders", requests.size());
+        long startTime = System.currentTimeMillis();
+
+        List<OrderResponse> responses = orderService.createMultipleOrdersAsync(requests);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("⏱️ [ASYNC] {} orders created in {}ms (emails queued)", requests.size(), duration);
+
+        return ApiResponse.<List<OrderResponse>>builder()
+                .result(responses)
                 .build();
     }
 

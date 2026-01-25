@@ -1,27 +1,29 @@
 package com.example.bai02.service;
 
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.example.bai02.dto.request.AuthenticationRequest;
 import com.example.bai02.dto.request.IntrospectRequest;
 import com.example.bai02.dto.request.LogoutRequest;
 import com.example.bai02.dto.request.RefreshRequest;
 import com.example.bai02.dto.response.AuthenticationResponse;
 import com.example.bai02.dto.response.IntrospectResponse;
+import com.example.bai02.entity.InvalidatedToken;
 import com.example.bai02.entity.User;
 import com.example.bai02.exception.AppException;
 import com.example.bai02.exception.ErrorCode;
+import com.example.bai02.repository.InvalidatedTokenRepository;
 import com.example.bai02.repository.UserRepository;
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -34,6 +36,8 @@ import java.util.UUID;
 @Slf4j
 public class AuthenticationService {
     private final UserRepository userRepository;
+    private final InvalidatedTokenRepository invalidatedTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @NonFinal
     @Value("${jwt.secret}")
@@ -42,8 +46,6 @@ public class AuthenticationService {
     @NonFinal
     @Value("${jwt.expiration}")
     protected long EXPIRATION_TIME;
-
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
@@ -68,7 +70,7 @@ public class AuthenticationService {
         boolean isValid = true;
 
         try {
-            verifyToken(token);
+            verifyToken(token, false);
         } catch (AppException | JOSEException | ParseException e) {
             isValid = false;
         }
@@ -78,12 +80,31 @@ public class AuthenticationService {
                 .build();
     }
 
-    public void logout(LogoutRequest request) {
-        log.info("Token logged out: {}", request.getToken());
+    @Transactional
+    public void logout(LogoutRequest request) throws ParseException, JOSEException {
+        try {
+            SignedJWT signToken = verifyToken(request.getToken(), true);
+
+            String jit = signToken.getJWTClaimsSet().getJWTID();
+            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+            InvalidatedToken invalidatedToken = new InvalidatedToken(jit, expiryTime);
+            invalidatedTokenRepository.save(invalidatedToken);
+
+        } catch (AppException exception) {
+            log.info("Token already expired");
+        }
     }
 
+    @Transactional
     public AuthenticationResponse refresh(RefreshRequest request) throws ParseException, JOSEException {
-        SignedJWT signedJWT = verifyToken(request.getToken());
+        SignedJWT signedJWT = verifyToken(request.getToken(), true);
+
+        String jit = signedJWT.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken = new InvalidatedToken(jit, expiryTime);
+        invalidatedTokenRepository.save(invalidatedToken);
 
         String username = signedJWT.getJWTClaimsSet().getSubject();
         User user = userRepository.findByUsername(username)
@@ -102,7 +123,7 @@ public class AuthenticationService {
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
-                .issuer("iuh.fit")
+                .issuer("com.example.bai02")
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(EXPIRATION_TIME, ChronoUnit.MILLIS).toEpochMilli()
@@ -124,16 +145,23 @@ public class AuthenticationService {
         }
     }
 
-    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+    private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SECRET_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expiryTime = (isRefresh)
+                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
+                .toInstant().plus(EXPIRATION_TIME, ChronoUnit.MILLIS).toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         boolean verified = signedJWT.verify(verifier);
 
         if (!(verified && expiryTime.after(new Date()))) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
