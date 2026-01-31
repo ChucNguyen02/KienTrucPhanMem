@@ -1,0 +1,6 @@
+
+package coffeeshop.order.payment;
+
+public interface PaymentStrategy {
+    void pay(double amount);
+}
