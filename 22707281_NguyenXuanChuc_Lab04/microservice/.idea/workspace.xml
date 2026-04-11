@@ -5,42 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe5fc4c0-8b3f-4d67-9cd9-537ddd42d80a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.ask2agent.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api-gateway/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api-gateway/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api-gateway/src/main/java/iuh/fit/apigateway/filter/JwtAuthFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/config/GlobalExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/controller/LoginController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/dto/request/CreateUserRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/dto/request/LoginRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/dto/response/ApiResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/dto/response/AuthResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/entity/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/repository/UserRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/security/JwtAuthenticationFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/security/JwtService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/service/LoginService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login-service/src/main/java/iuh/fit/loginservice/service/UserDetailsServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/client/LoginServiceClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/config/GlobalExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/controller/RegisterController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/dto/request/CreateUserRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/dto/request/RegisterRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/dto/response/ApiResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/dto/response/AuthResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/register-service/src/main/java/iuh/fit/registerservice/service/RegisterService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../22707281_NguyenXuanChuc_Lab05/bai03/HELP.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../22707281_NguyenXuanChuc_Lab05/bai03/HELP.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../22707281_NguyenXuanChuc_Lab05/bai03/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../22707281_NguyenXuanChuc_Lab05/bai03/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../22707281_NguyenXuanChuc_Lab05/bai03/src/main/java/iuh/fit/bai03/Bai03Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../22707281_NguyenXuanChuc_Lab05/bai03/src/main/java/iuh/fit/bai03/Bai03Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../22707281_NguyenXuanChuc_Lab05/bai03/src/test/java/iuh/fit/bai03/Bai03ApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../22707281_NguyenXuanChuc_Lab05/bai03/src/test/java/iuh/fit/bai03/Bai03ApplicationTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,28 +37,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/DaiHoc/KienTrucPhanMem/BaiTap/KienTrucPhanMem/22707281_NguyenXuanChuc_Lab04/microservice",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/DaiHoc/KienTrucPhanMem/BaiTap/KienTrucPhanMem/22707281_NguyenXuanChuc_Lab04/microservice&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -107,6 +76,8 @@
       <updated>1774201558323</updated>
       <workItem from="1774201561390" duration="28000" />
       <workItem from="1774204325363" duration="1551000" />
+      <workItem from="1774685068543" duration="1629000" />
+      <workItem from="1774712799100" duration="438000" />
     </task>
     <servers />
   </component>

@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  activemq-broker:
+    image: rmohr/activemq:5.15.9
+    container_name: activemq-broker
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+
+  order-app:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    container_name: order-app
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      activemq-broker:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/ecommerce_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      ACTIVEMQ_BROKER_URL: tcp://activemq-broker:61616
+      ACTIVEMQ_USER: admin
+      ACTIVEMQ_PASSWORD: admin
+    ports:
+      - "8081:8081"
+
+  payment-app:
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
+    container_name: payment-app
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      activemq-broker:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/ecommerce_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      ACTIVEMQ_BROKER_URL: tcp://activemq-broker:61616
+      ACTIVEMQ_USER: admin
+      ACTIVEMQ_PASSWORD: admin
+    ports:
+      - "8082:8082"
+
+  shipping-app:
+    build:
+      context: .
+      dockerfile: shipping-service/Dockerfile
+    container_name: shipping-app
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      activemq-broker:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/ecommerce_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      ACTIVEMQ_BROKER_URL: tcp://activemq-broker:61616
+      ACTIVEMQ_USER: admin
+      ACTIVEMQ_PASSWORD: admin
+    ports:
+      - "8083:8083"
+
